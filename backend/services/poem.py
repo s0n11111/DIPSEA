@@ -1,12 +1,12 @@
 import sys
 import torch
 from transformers import AutoTokenizer
-from services.exaone_merged.configuration_exaone import ExaoneConfig
-from services.exaone_merged.modeling_exaone import ExaoneForCausalLM
+from models.exaone_merged.configuration_exaone import ExaoneConfig
+from models.exaone_merged.modeling_exaone import ExaoneForCausalLM
 
 # ─── 모델 로딩 ──────────────────────────────────────────────
 
-MODEL_PATH = "services/exaone_merged"  # 실제 경로에 맞게 수정
+MODEL_PATH = "models/exaone_merged"
 sys.path.append(MODEL_PATH)
 
 # 모델 및 토크나이저 초기화 (최초 1회만)
