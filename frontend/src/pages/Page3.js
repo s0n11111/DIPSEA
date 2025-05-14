@@ -12,6 +12,7 @@ function Page3() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [speakingIndex, setSpeakingIndex] = useState(null);
     const [progress, setProgress] = useState(30);
+
     const audioRef = useRef(null);
     const countdownRef = useRef(null);
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -40,117 +41,92 @@ function Page3() {
         setProgress(0);
     };
 
+    const processAudioBlob = async (blob) => {
+        setIsProcessing(true);
+
+        const formData = new FormData();
+        formData.append('file', blob, `recording_${Date.now()}.wav`);
+
+        try {
+            // 1. STT
+            const sttRes = await fetch('http://localhost:5000/stt', {
+                method: 'POST', body: formData,
+            });
+            const {transcript} = await sttRes.json();
+
+            // 2. 감정 분석
+            const emotionRes = await fetch('http://localhost:5000/emotion', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: transcript}),
+            });
+            const {emotion} = await emotionRes.json();
+
+            // 3. 시 생성
+            const poemRes = await fetch('http://localhost:5000/poem', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: transcript, emotion}),
+            });
+            const {poem} = await poemRes.json();
+
+            // 4. TTS
+            const ttsRes = await fetch('http://localhost:5000/tts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: poem, emotion}),
+            });
+            const {output} = await ttsRes.json();
+
+            // 5. Video
+            const videoRes = await fetch('http://localhost:5000/video', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: transcript, emotion}),
+            });
+            const {video_url} = await videoRes.json();
+
+            const newMsg = {
+                text: transcript,
+                resultText: poem || '시 생성 실패',
+                audioUrl: output ? `http://localhost:5000${output}` : null,
+                recordedUrl: URL.createObjectURL(blob),
+                videoUrl: video_url || null,
+                showResult: true,
+            };
+
+            setMessages((prev) => [...prev, newMsg]);
+        } catch (err) {
+            console.error(err);
+            alert('전체 생성 중 오류가 발생했습니다.');
+        } finally {
+            stopCountdown();
+            setIsProcessing(false);
+        }
+    };
+
     const toggleVoiceRecognition = async () => {
         if (isRecording) {
-            setIsProcessing(true);
-            recorderRef.current.stop().then(({blob}) => {
-                const formData = new FormData();
-                formData.append('file', blob, `recording_${Date.now()}.wav`);
-
-                fetch('http://localhost:3000/generate-poem-from-audio', {
-                    method: 'POST', body: formData,
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        const newMsg = {
-                            text: data.transcript || '텍스트 없음',
-                            resultText: data.poem || '시 생성 실패',
-                            audioUrl: data.output ? `http://localhost:3000${data.output}` : null,
-                            recordedUrl: data.recorded ? `http://localhost:3000${data.recorded}` : null,
-                            showResult: true,
-                        };
-                        setMessages(prev => [...prev, newMsg]);
-                    })
-                    .catch(err => {
-                        alert('API 호출 실패');
-                        console.error(err);
-                    })
-                    .finally(() => {
-                        setIsProcessing(false);  // 비활성화 해제
-                    });
-
+            recorderRef.current.stop().then(async ({blob}) => {
                 setIsRecording(false);
-                stopCountdown();
+                await processAudioBlob(blob);
             });
             return;
         }
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-            const recorder = new Recorder(audioContext, {
-                onAnalysed: data => console.log(data), // optional
-            });
-
+            const recorder = new Recorder(audioContext);
             await recorder.init(stream);
             recorderRef.current = recorder;
             recorder.start();
             setIsRecording(true);
             startCountdown();
 
+            // 자동 종료 타이머 (30초 후)
             setTimeout(() => {
                 if (isRecording) {
                     recorderRef.current.stop().then(async ({blob}) => {
-                        setIsProcessing(true);
-                        const formData = new FormData();
-                        formData.append('file', blob, `recording_${Date.now()}.wav`);
-
-                        try {
-                            // 1. STT
-                            const sttRes = await fetch('http://localhost:5000/stt', {
-                                method: 'POST', body: formData,
-                            });
-                            const {transcript} = await sttRes.json();
-
-                            // 2. 감정 분석
-                            const emotionRes = await fetch('http://localhost:5000/emotion', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({text: transcript}),
-                            });
-                            const {emotion} = await emotionRes.json();
-
-                            // 3. 시 생성
-                            const poemRes = await fetch('http://localhost:5000/poem', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({text: transcript, emotion}),
-                            });
-                            const {poem} = await poemRes.json();
-
-                            // 4. TTS
-                            const ttsRes = await fetch('http://localhost:5000/audio', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({text: poem, emotion}),
-                            });
-                            const {output} = await ttsRes.json();
-
-                            // 5. Video
-                            const videoRes = await fetch('http://localhost:5000/video', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({text: transcript, emotion}),
-                            });
-                            const {video_url} = await videoRes.json();
-
-                            const newMsg = {
-                                text: transcript,
-                                resultText: poem || '시 생성 실패',
-                                audioUrl: output ? `http://localhost:3000${output}` : null,
-                                recordedUrl: URL.createObjectURL(blob),
-                                videoUrl: video_url || null,
-                                showResult: true,
-                            };
-
-                            setMessages((prev) => [...prev, newMsg]);
-
-                        } catch (err) {
-                            console.error(err);
-                            alert('전체 생성 중 오류가 발생했습니다.');
-                        } finally {
-                            stopCountdown();
-                            setIsProcessing(false);
-                        }
+                        setIsRecording(false);
+                        await processAudioBlob(blob);
                     });
                 }
             }, 30000);
@@ -214,11 +190,22 @@ function Page3() {
                         </div>
 
                         {msg.showResult && (<div>
-                                <div className="page3-result-text"
-                                     style={{whiteSpace: 'pre-line'}}>{msg.resultText}</div>
+                                <div className="page3-result-text" style={{whiteSpace: 'pre-line'}}>
+                                    {msg.resultText}
+                                </div>
                                 {msg.audioUrl && (<audio controls src={msg.audioUrl}>
                                         브라우저가 오디오 재생을 지원하지 않습니다.
                                     </audio>)}
+                                {msg.videoUrl && (<div className="page3-video-wrapper">
+                                        <iframe
+                                            width="100%"
+                                            height="300"
+                                            src={msg.videoUrl}
+                                            title="추천 동영상"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>)}
                             </div>)}
                     </div>))}
                 <div ref={messagesEndRef}/>
