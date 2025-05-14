@@ -6,9 +6,9 @@ import joblib
 import pickle
 
 # ─── 초기화 ────────────────────────────────────────
-tokenizer = pickle.load(open("services/emotion/tokenizer.pkl", "rb"))
-le_main = joblib.load("services/emotion/label_encoder_main.pkl")
-model_main = load_model("services/emotion/main_bilstm_2.keras")
+tokenizer = pickle.load(open("models/emotion/tokenizer.pkl", "rb"))
+le_main = joblib.load("models/emotion/label_encoder_main.pkl")
+model_main = load_model("models/emotion/main_bilstm_2.keras")
 kiwi = Kiwi()
 
 print("✅ 감정 분석 모델 로드 완료")
