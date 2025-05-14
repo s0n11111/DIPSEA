@@ -8,7 +8,7 @@ from transformers import pipeline, WhisperProcessor
 
 warnings.filterwarnings("ignore", category=UserWarning, module="h5py")
 
-MODEL_ROOT = "services/whisper_korean"
+MODEL_ROOT = "models/whisper_korean"
 DEVICE_ID = 0 if torch.cuda.is_available() else -1
 
 # ─── Whisper 모델 초기화 ─────────────────────────────
