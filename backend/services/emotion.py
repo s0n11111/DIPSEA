@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from kiwipiepy import Kiwi
 import pickle
@@ -18,8 +17,9 @@ hidden_dim = 128
 num_classes = 5
 
 # ─── 모델 로드 ───────────────────────────────────────
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = BiLSTMAttnModel(vocab_size, embedding_dim, hidden_dim, num_classes)
-model.load_state_dict(torch.load("models/emotion/main_bilstm_2.pth", map_location="cpu"))
+model.load_state_dict(torch.load("models/emotion/main_bilstm_2.pth", map_location=device))
 model.eval()
 
 print("✅ 감정 분석 모델 로드 완료")
