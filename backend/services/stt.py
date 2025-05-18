@@ -1,7 +1,6 @@
-import librosa
 import torch
-import soundfile as sf
-import numpy as np
+import torchaudio
+import torchaudio.transforms as T
 import re
 import warnings
 from transformers import pipeline, WhisperProcessor
@@ -32,27 +31,26 @@ except Exception as e:
     processor = None
     asr = None
 
-# ─── STT 함수 (soundfile + numpy 기반) ───────────────
+
+# ─── STT 함수 (torchaudio 기반) ────────────────────────
 def transcribe(audio_path: str) -> str:
     if asr is None:
         print("❌ STT 모델이 초기화되지 않았습니다.")
         return ""
 
     try:
-        audio, sr = sf.read(audio_path)
-        if len(audio.shape) > 1:
-            audio = np.mean(audio, axis=1)  # 다채널 → 단일 채널
-    except Exception as e:
-        print(f"⚠️ soundfile 로딩 실패: {e}")
-        return ""
+        waveform, sr = torchaudio.load(audio_path)  # waveform shape: [1, N] or [2, N]
+        if waveform.size(0) > 1:
+            waveform = torch.mean(waveform, dim=0, keepdim=True)  # 다채널 → 단일 채널
 
-    try:
         if sr != 16000:
             print(f"⚠️ 현재 sr={sr}, 리샘플링 필요")
-            audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
+            resampler = T.Resample(orig_freq=sr, new_freq=16000)
+            waveform = resampler(waveform)
             sr = 16000
 
-        result = asr({"array": audio, "sampling_rate": sr})
+        audio_np = waveform.squeeze().numpy()
+        result = asr({"array": audio_np, "sampling_rate": sr})
         raw_text = result["text"]
         korean_only = re.sub(r"[^가-힣\s]", "", raw_text).strip()
         return korean_only
