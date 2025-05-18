@@ -8,10 +8,15 @@ def create_app():
     CORS(app)
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
     app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
     app.config['OUTPUT_FOLDER'] = os.path.join(BASE_DIR, 'static', 'output')
+    app.config['AUDIO_FOLDER'] = os.path.join(app.config['OUTPUT_FOLDER'], 'audio')
+    app.config['VIDEO_FOLDER'] = os.path.join(app.config['OUTPUT_FOLDER'], 'video')
+
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['AUDIO_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['VIDEO_FOLDER'], exist_ok=True)
 
     # 블루프린트 등록
     from routes.stt_route import stt_bp
@@ -31,4 +36,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=False)
