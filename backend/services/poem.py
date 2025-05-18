@@ -1,6 +1,6 @@
 import sys
 import torch
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, BitsAndBytesConfig
 from models.exaone_merged.configuration_exaone import ExaoneConfig
 from models.exaone_merged.modeling_exaone import ExaoneForCausalLM
 
@@ -13,12 +13,21 @@ sys.path.append(MODEL_PATH)
 try:
     config = ExaoneConfig.from_pretrained(MODEL_PATH)
 
+    bnb_config=BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        llm_int8_enable_fp32_cpu_offload=True,
+    )
+
     model = ExaoneForCausalLM.from_pretrained(
         MODEL_PATH,
+        quantization_config=bnb_config,
         config=config,
-        torch_dtype=torch.float16,
         device_map="auto",
         local_files_only=True,
+        low_cpu_mem_usage=True,
         trust_remote_code=True
     )
 
@@ -41,7 +50,7 @@ def generate_poem(emotion: str, text: str) -> str:
     if model is None or tokenizer is None:
         return "⚠️ 모델이 초기화되지 않았습니다."
 
-    prompt = f"### Instruction:\n사용자가 다음과 같은 상황에 처했어. {text}\n{emotion} 감정이 느껴지는 3줄 이상의 시를 써줘\n\n### Response:\n"
+    prompt = f"### Instruction:\n사용자가 다음과 같은 상황에 처했어. {text}\n{emotion} 감정이 느껴지는 세 줄 이상의 시를 써줘\n\n### Response:\n"
 
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
 
