@@ -25,7 +25,7 @@ try:
     gen_cfg.suppress_tokens = []
     gen_cfg.begin_suppress_tokens = []
     gen_cfg.decoder_start_token_id = processor.tokenizer.convert_tokens_to_ids("<|ko|>")
-    print("✔️ Whisper 모델 초기화 완료")
+    print("✅ Whisper 모델 초기화 완료")
 except Exception as e:
     print(f"❌ Whisper 초기화 실패: {e}")
     processor = None
