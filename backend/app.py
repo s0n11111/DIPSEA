@@ -11,10 +11,13 @@ def create_app():
 
     app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
     app.config['OUTPUT_FOLDER'] = os.path.join(BASE_DIR, 'static', 'output')
+    app.config['IMAGE_FOLDER'] = os.path.join(app.config['OUTPUT_FOLDER'], 'image')
     app.config['AUDIO_FOLDER'] = os.path.join(app.config['OUTPUT_FOLDER'], 'audio')
     app.config['VIDEO_FOLDER'] = os.path.join(app.config['OUTPUT_FOLDER'], 'video')
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['IMAGE_FOLDER'], exist_ok=True)
     os.makedirs(app.config['AUDIO_FOLDER'], exist_ok=True)
     os.makedirs(app.config['VIDEO_FOLDER'], exist_ok=True)
 
