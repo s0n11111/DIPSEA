@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import './Page1.css';
+import '../styles/Page1.css';
 import {FaPaperPlane} from 'react-icons/fa';
 
 function Page1() {
@@ -24,34 +24,52 @@ function Page1() {
         setInput('');
         setIsProcessing(true);
 
-        // 메시지 UI에 추가 (결과는 나중에 채움)
         const newMessage = {text: userText, videoUrl: '', showResult: true};
         setMessages(prev => [...prev, newMessage]);
 
         try {
-            // 1. 감정 분석
             const emotionRes = await fetch('http://localhost:5000/emotion', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: userText})
             });
             const {emotion} = await emotionRes.json();
+            console.log("감정 분석 결과:", emotion);
 
-            // 2. TTS
-            await fetch('http://localhost:5000/tts', {
+            const ttsRes = await fetch('http://localhost:5000/tts', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({text: userText, emotion})
             });
 
-            // 3. 영상 생성
+            const ttsData = await ttsRes.json();
+            if (!ttsData.output) {
+                throw new Error("TTS 음성 생성 실패");
+            }
+
+            // TTS 음성 경로 확인
+            const audioPath = ttsData.output;
+            console.log("TTS 음성 파일 경로:", audioPath);
+
+            const prompts = userText
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line !== '');
             const videoRes = await fetch('http://localhost:5000/video', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({text: userText, emotion})
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+                    prompts: prompts, audio_path: audioPath
+                })
             });
 
-            const {video_url} = await videoRes.json();
+            const videoData = await videoRes.json();
+            if (!videoData.video_url) {
+                throw new Error("동영상 생성 실패");
+            }
 
-            setMessages(prev => prev.map((msg, idx) => idx === prev.length - 1 ? {...msg, videoUrl: video_url} : msg));
+            // 동영상 URL
+            const videoUrl = `http://localhost:5000${videoData.video_url}`;
+            console.log("동영상 URL:", videoUrl);
+
+            // 메시지 업데이트
+            setMessages(prev => prev.map((msg, idx) => idx === prev.length - 1 ? {...msg, videoUrl: videoUrl} : msg));
         } catch (err) {
             console.error('생성 실패:', err);
             alert('영상 생성 중 오류가 발생했습니다.');
@@ -82,19 +100,19 @@ function Page1() {
 
         <div className="page1-chat-messages">
             {messages.map((msg, idx) => (<div key={idx} className="page1-chat-message">
-                <p>{msg.text}</p>
-
+                <div style={{whiteSpace: 'pre-line'}}>
+                    {msg.text}
+                </div>
                 {msg.showResult && msg.videoUrl && (<div className="page1-video-wrapper">
                     <iframe
                         width="100%"
                         height="300"
                         src={msg.videoUrl}
                         title="추천 동영상"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                     ></iframe>
                 </div>)}
-
                 <div className="page1-result-button-wrapper">
                     <button
                         className="page1-view-result-btn"
@@ -108,13 +126,13 @@ function Page1() {
         </div>
 
         <form onSubmit={handleSubmit} className="page1-chat-input-form">
-        <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="시를 입력하세요"
-            rows="2"
-            required
-        />
+                <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="시를 입력하세요"
+                    rows="2"
+                    required
+                />
             <button
                 type="submit"
                 disabled={isProcessing}
