@@ -29,7 +29,7 @@ def handle_generate_video():
         ])
 
         # 동영상 생성
-        video_url = generate_slideshow(prompts, audio_files)
+        video_url = generate_slideshow(prompts, audio_files, current_app.config)
         return jsonify({"video_url": video_url})
     except Exception as e:
         print(f"❌ 동영상 생성 오류: {e}")
