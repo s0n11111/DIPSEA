@@ -1,0 +1,195 @@
+.page3-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.page3-top-toolbar {
+    position: fixed;
+    top: 64px;
+    left: 72px;
+    right: 0;
+    height: 48px;
+    z-index: 9;
+    background-color: #fffbfe !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+}
+
+.page3-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page3-reset-button {
+    padding: 4px !important;
+    background-color: transparent !important;
+    transition: background-color 0.3s;
+}
+
+.page3-reset-button:hover {
+    background-color: #f2ecf8 !important;
+}
+
+.page3-messages-container {
+    position: absolute;
+    top: 15px;
+    bottom: 70px;
+    left: 72px;
+    right: 128px;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.page3-messages-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.page3-messages-container::-webkit-scrollbar-thumb {
+    background-color: #efe7fd;
+    border-radius: 2px;
+}
+
+.page3-messages-container::-webkit-scrollbar-thumb:hover {
+    background-color: #e5d9fc;
+}
+
+.page3-messages-inner {
+    width: 100%;
+    max-width: 635px;
+    margin: 0 auto;
+}
+
+.page3-message-block {
+    margin-bottom: 32px;
+}
+
+.page3-message-paper {
+    padding: 12px 16px !important;
+    background-color: #f9efff !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+    border-bottom-right-radius: 4px !important;
+    max-width: 50% !important;
+    width: fit-content !important;
+    margin-left: auto;
+}
+
+.page3-message-text {
+    white-space: pre-line;
+    font-size: 15px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+}
+
+.page3-button-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.page3-listen-button {
+    height: 40px;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    background-color: #f9efff !important;
+    color: black !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.page3-listen-button:hover {
+    background-color: #e5d9fc !important;
+}
+
+.page3-video-container {
+    margin-top: 16px;
+}
+
+.page3-toggle-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.page3-loading-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    min-height: 350px;
+    align-items: center;
+}
+
+.page3-record-button-container {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.page3-record-button {
+    width: 130px;
+    height: 48px;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    color: black !important;
+    background-color: #f9efff !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+}
+
+.page3-record-button:hover {
+    background-color: #e5d9fc !important;
+}
+
+    .page3-record-button.recording {
+        background-color: #aaa;
+    }
+
+    .page3-record-button:disabled {
+        background-color: #666;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+.progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: width 1s linear;
+    z-index: 11;
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+.page3-response-message {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 16px;
+}
+
+.page3-message-paper-bot {
+    background-color: #ffffff !important;
+    padding: 12px 16px !important;
+    max-width: 50% !important;
+    width: fit-content !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 20px !important;
+}
+
+.page3-message-text {
+    white-space: pre-line;
+    font-size: 15px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+}

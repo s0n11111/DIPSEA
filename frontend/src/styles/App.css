@@ -1,0 +1,87 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background: var(--M3-ref-primary-primary99, #FFFBFE);
+}
+
+.app-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.app-appbar {
+  background-color: #f9efff !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
+
+.app-title {
+  color: #000;
+  text-align: center;
+  font-family: Amethysta;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 36px;
+}
+
+.app-content {
+  padding: 24px;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.app-drawer .MuiDrawer-paper {
+  box-sizing: border-box;
+  background-color: #f9efff !important;
+  border-right: none !important;
+  display: flex;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+.app-list-item {
+  flex-direction: column !important;
+  overflow-x: hidden;
+  background-color: transparent !important;
+}
+
+.app-list-item:hover {
+  background-color: transparent !important;
+}
+
+.app-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  background-color: transparent;
+  transition: background-color 0.3s;
+}
+
+.app-icon-box:hover {
+  background-color: #e3d8f5 !important;
+}
+
+.app-icon-box.selected {
+  background-color: #e3d8f5 !important;
+}
+
+.app-icon {
+  min-width: 0 !important;
+  justify-content: center;
+  color: #000 !important;
+}
+
+.app-list-text {
+  color: #000 !important;
+}
