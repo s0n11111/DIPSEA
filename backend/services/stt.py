@@ -40,6 +40,9 @@ def transcribe(audio_path: str) -> str:
 
     try:
         waveform, sr = torchaudio.load(audio_path)  # waveform shape: [1, N] or [2, N]
+        if waveform.numel() == 0:
+            raise ValueError(f"오디오가 비어있습니다: {audio_path}")
+
         if waveform.size(0) > 1:
             waveform = torch.mean(waveform, dim=0, keepdim=True)  # 다채널 → 단일 채널
 
